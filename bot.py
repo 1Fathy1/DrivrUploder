@@ -12,23 +12,23 @@ BOT_TOKEN = os.getenv("BOT_TOKEN")
 YEAR_FOLDER_ID = os.getenv("YEAR_FOLDER_ID")
 ALLOWED_USERS = ["fa_th_y"]  # Add allowed Telegram usernames
 
-# ----- إنشاء service_account.json من الـ Environment Variable -----
 import os
+from drive_uploader import GoogleDriveUploader
+from logger_config import setup_logger
+
+logger = setup_logger()
 
 if os.environ.get("SERVICE_ACCOUNT_JSON"):
     creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
-
-    # تحويل \n إلى سطور حقيقية
     creds_json = creds_json.replace("\\n", "\n")
-
-    # كتابة الملف
     with open("service_account.json", "w", encoding="utf-8") as f:
         f.write(creds_json)
 
 SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
-# ----- إنشاء service_account.json من الـ Environment Variable -----
 
-uploader = GoogleDriveUploader()
+# دلوقتي استدعي الكلاس بعد كتابة الملف
+uploader = GoogleDriveUploader(creds_file=SERVICE_ACCOUNT_JSON_PATH)
+
 logger = setup_logger()
 
 # ---------------- USERS STATE ----------------
