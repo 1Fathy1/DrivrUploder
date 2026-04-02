@@ -10,18 +10,20 @@ logger = setup_logger()
 # ----- إنشاء service_account.json من الـ Environment Variable -----
 if os.environ.get("SERVICE_ACCOUNT_JSON"):
     creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
-    CREDENTIALS_FILE = "service_account.json"
-    with open(CREDENTIALS_FILE, "w", encoding="utf-8") as f:
+
+    # إزالة أي أسطر جديدة زائدة
+    creds_json = creds_json.replace("\\n", "\n")
+
+    # كتابة الملف
+    with open("service_account.json", "w", encoding="utf-8") as f:
         f.write(creds_json)
-else:
-    # fallback للملف المحلي لو موجود
-    CREDENTIALS_FILE = os.getenv("SERVICE_ACCOUNT_JSON_PATH", "service_account.json")
+
+SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
 
 
 class GoogleDriveUploader:
-    def __init__(self, creds_file=None):
-        # إذا محددش creds_file، استخدم الملف اللي اتعمل أعلاه
-        creds_file = creds_file or CREDENTIALS_FILE
+    def __init__(self, creds_file= SERVICE_ACCOUNT_JSON_PATH):
+        
         try:
             self.creds = service_account.Credentials.from_service_account_file(
                 creds_file,
