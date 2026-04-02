@@ -13,10 +13,12 @@ YEAR_FOLDER_ID = os.getenv("YEAR_FOLDER_ID")
 ALLOWED_USERS = ["fa_th_y"]  # Add allowed Telegram usernames
 
 # ----- إنشاء service_account.json من الـ Environment Variable -----
+import os
+
 if os.environ.get("SERVICE_ACCOUNT_JSON"):
     creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
 
-    # إزالة أي أسطر جديدة زائدة
+    # تحويل \n إلى سطور حقيقية
     creds_json = creds_json.replace("\\n", "\n")
 
     # كتابة الملف
@@ -24,6 +26,8 @@ if os.environ.get("SERVICE_ACCOUNT_JSON"):
         f.write(creds_json)
 
 SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
+# ----- إنشاء service_account.json من الـ Environment Variable -----
+
 uploader = GoogleDriveUploader()
 logger = setup_logger()
 
