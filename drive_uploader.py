@@ -8,7 +8,14 @@ from dotenv import load_dotenv
 load_dotenv()
 
 logger = setup_logger()
-CREDENTIALS_FILE = os.getenv("SERVICE_ACCOUNT_JSON_PATH")
+
+if os.environ.get("SERVICE_ACCOUNT_JSON"):
+    creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
+    with open("service_account.json", "w", encoding="utf-8") as f:
+        f.write(creds_json)
+
+SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
+# CREDENTIALS_FILE = os.getenv("SERVICE_ACCOUNT_JSON_PATH")
 
 class GoogleDriveUploader:
     def __init__(self, creds_file= CREDENTIALS_FILE):
