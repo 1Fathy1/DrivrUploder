@@ -11,7 +11,7 @@ logger = setup_logger()
 if os.environ.get("SERVICE_ACCOUNT_JSON"):
     creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
 
-    # إزالة أي أسطر جديدة زائدة
+    # تحويل \n إلى سطور حقيقية
     creds_json = creds_json.replace("\\n", "\n")
 
     # كتابة الملف
