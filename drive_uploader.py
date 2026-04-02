@@ -19,6 +19,7 @@ if os.environ.get("SERVICE_ACCOUNT_JSON"):
         f.write(creds_json)
 
 SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
+print(f"SERVICE_ACCOUNT_JSON_PATH : {SERVICE_ACCOUNT_JSON_PATH}")
 
 
 class GoogleDriveUploader:
