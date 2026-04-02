@@ -1,24 +1,27 @@
+import os
+import mimetypes
 from google.oauth2 import service_account
 from googleapiclient.discovery import build
 from googleapiclient.http import MediaFileUpload
-import mimetypes
 from logger_config import setup_logger
-import os
-from dotenv import load_dotenv
-load_dotenv()
 
 logger = setup_logger()
 
+# ----- إنشاء service_account.json من الـ Environment Variable -----
 if os.environ.get("SERVICE_ACCOUNT_JSON"):
     creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
-    with open("service_account.json", "w", encoding="utf-8") as f:
+    CREDENTIALS_FILE = "service_account.json"
+    with open(CREDENTIALS_FILE, "w", encoding="utf-8") as f:
         f.write(creds_json)
+else:
+    # fallback للملف المحلي لو موجود
+    CREDENTIALS_FILE = os.getenv("SERVICE_ACCOUNT_JSON_PATH", "service_account.json")
 
-SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
-# CREDENTIALS_FILE = os.getenv("SERVICE_ACCOUNT_JSON_PATH")
 
 class GoogleDriveUploader:
-    def __init__(self, creds_file= CREDENTIALS_FILE):
+    def __init__(self, creds_file=None):
+        # إذا محددش creds_file، استخدم الملف اللي اتعمل أعلاه
+        creds_file = creds_file or CREDENTIALS_FILE
         try:
             self.creds = service_account.Credentials.from_service_account_file(
                 creds_file,
@@ -34,11 +37,7 @@ class GoogleDriveUploader:
 
     def upload_file(self, file_path, folder_id):
         try:
-            if not folder_id:
-                logger.error("❌ Folder ID is None. Upload aborted.")
-                return None
-
-            file_name = file_path.split("/")[-1]
+            file_name = os.path.basename(file_path)
             mime_type, _ = mimetypes.guess_type(file_path)
 
             file_metadata = {
@@ -51,13 +50,10 @@ class GoogleDriveUploader:
             file = self.service.files().create(
                 body=file_metadata,
                 media_body=media,
-                fields="id",
-                supportsAllDrives=True
+                fields="id"
             ).execute()
 
             file_id = file.get("id")
-
-
             logger.info(f"File uploaded: {file_name} | ID: {file_id}")
             return file_id
 
@@ -68,16 +64,12 @@ class GoogleDriveUploader:
     def get_folder_id_by_name(self, parent_id, folder_name):
         try:
             query = f"'{parent_id}' in parents and name='{folder_name}' and mimeType='application/vnd.google-apps.folder' and trashed=false"
-
             results = self.service.files().list(
                 q=query,
-                fields="files(id, name)",
-                supportsAllDrives=True,
-                includeItemsFromAllDrives=True
+                fields="files(id, name)"
             ).execute()
 
             folders = results.get("files", [])
-
             if not folders:
                 logger.warning(f"Folder not found: {folder_name}")
                 return None
@@ -97,15 +89,12 @@ class GoogleDriveUploader:
                 5: "5 May", 6: "6 Jun", 7: "7 Jul", 8: "8 Aug",
                 9: "9 Sep", 10: "10 Oct", 11: "11 Nov", 12: "12 Dec"
             }
-
             folder_name = month_map.get(month_number)
-
             if not folder_name:
                 logger.error(f"Invalid month number: {month_number}")
                 return None
 
             return self.get_folder_id_by_name(year_folder_id, folder_name)
-
         except Exception as e:
             logger.error(f"Error getting month folder: {str(e)}")
             return None
