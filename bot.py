@@ -7,12 +7,23 @@ from dotenv import load_dotenv
 load_dotenv()
 
 # ---------------- CONFIG ----------------
-# BOT_TOKEN = "8609566166:AAEoMznSpguXNeNfmltaGWVWDe0R1xTVHV0"
-# YEAR_FOLDER_ID = "0ANrs_JbzxJctUk9PVA"
+
 BOT_TOKEN = os.getenv("BOT_TOKEN")
 YEAR_FOLDER_ID = os.getenv("YEAR_FOLDER_ID")
 ALLOWED_USERS = ["fa_th_y"]  # Add allowed Telegram usernames
 
+# ----- إنشاء service_account.json من الـ Environment Variable -----
+if os.environ.get("SERVICE_ACCOUNT_JSON"):
+    creds_json = os.environ["SERVICE_ACCOUNT_JSON"]
+
+    # إزالة أي أسطر جديدة زائدة
+    creds_json = creds_json.replace("\\n", "\n")
+
+    # كتابة الملف
+    with open("service_account.json", "w", encoding="utf-8") as f:
+        f.write(creds_json)
+
+SERVICE_ACCOUNT_JSON_PATH = "service_account.json"
 uploader = GoogleDriveUploader()
 logger = setup_logger()
 
